@@ -119,6 +119,49 @@ cells. Interpolated cells enter the input sequence but are never scored.
 
 ---
 
+## Repository Structure
+```
+Physics-Informed-UHI-Diagnostics/
+│
+├── README.md
+├── requirements.txt
+├── .gitattributes                      Git LFS tracking
+├── .gitignore
+│
+├── data/                               extracted inputs (LFS)
+│   ├── Blr_Nodes_1km.geojson           1 km nodes + building morphology
+│   ├── Hyd_Nodes_1km.geojson
+│   ├── Dlh_Nodes_1km.geojson
+│   └── {Blr,Hyd,Dlh}_{Summer,Winter}_{April,December}.csv
+│
+├── src/
+│   ├── gee/
+│   │   ├── nodes_1km.js                node grid + Open Buildings morphology
+│   │   └── modis_extraction.js         night LST, overpass-time reanalysis pairing
+│   └── notebooks/
+│       ├── 01_main.ipynb               pipeline reproducing the results
+│       ├── 02_supplementary.ipynb      semivariogram, k sweep, spatial-lag test
+│       └── 03_superseded_design.ipynb
+│
+└── results/
+    ├── modis_night_results_FINAL.csv   main sweep, 4 arms x 6 configs
+    ├── oracle_and_decomposition.csv    structureless reference + tree decomposition
+    ├── neural_decomposition.csv        graph decomposition + signed level error
+    ├── bootstrap_gaps.csv              CIs on the tree-vs-graph gaps
+    ├── tree_baselines.csv              RF / HistGBR, with and without spatial lag
+    ├── k_focused.csv                   message-passing degree sweep
+    ├── mlp_lag_test.csv                spatial lag vs message passing
+    ├── plots.py                        generates the two figures
+    ├── fig1_ablation.pdf
+    ├── fig2_variance_deficit.pdf
+    └── {Bangalore,Hyderabad,Delhi}/
+        ├── {April,December}_Models/    checkpoints: Full, NoGraph, NoMorph, NoAtmos
+        └── *.png                       per-arm city maps, collapse, correlation,
+                                        scatter + histogram
+```
+
+---
+
 ## Reproducing
 
 ```bash
