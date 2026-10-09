@@ -1,0 +1,289 @@
+Folder PATH listing for volume OS
+Volume serial number is 8049-0321
+C:.
+|   .gitattributes
+|   .gitignore
+|   README.md
+|   requirements.txt
+|   tree.txt
+|   
++---data
+|       Blr_April_MODIS_60d.csv
+|       Blr_December_MODIS_60d.csv
+|       Blr_Nodes_1km.geojson
+|       Dlh_April_MODIS_60d.csv
+|       Dlh_December_MODIS_60d.csv
+|       Dlh_Nodes_1km.geojson
+|       Hyd_April_MODIS_60d.csv
+|       Hyd_December_MODIS_60d.csv
+|       Hyd_Nodes_1km.geojson
+|       
++---results
+|   |   ablation_static.csv
+|   |   bootstrap_by_night.csv
+|   |   data_checks.csv
+|   |   fig_decoupling_spatial.pdf
+|   |   fig_decoupling_spatial.png
+|   |   fig_decoupling_spatiotemporal.pdf
+|   |   fig_decoupling_spatiotemporal.png
+|   |   gat_diagnostics.csv
+|   |   gat_sensitivity.csv
+|   |   paper_numbers.txt
+|   |   per_sensor.csv
+|   |   run_log.csv
+|   |   spread.csv
+|   |   table1_all_folds.csv
+|   |   
+|   +---Bangalore
+|   |   |   April_DataDiagnostics.png
+|   |   |   April_Full_City.png
+|   |   |   April_Full_Collapse.png
+|   |   |   April_Full_Corr.png
+|   |   |   April_Full_ModelDiagnostics.png
+|   |   |   April_Full_Scatter+Hist.png
+|   |   |   April_NoAtmos_City.png
+|   |   |   April_NoAtmos_Collapse.png
+|   |   |   April_NoAtmos_Corr.png
+|   |   |   April_NoAtmos_Scatter+Hist.png
+|   |   |   April_NoGraph_City.png
+|   |   |   April_NoGraph_Collapse.png
+|   |   |   April_NoGraph_Corr.png
+|   |   |   April_NoGraph_Scatter+Hist.png
+|   |   |   April_NoMorph_City.png
+|   |   |   April_NoMorph_Collapse.png
+|   |   |   April_NoMorph_Corr.png
+|   |   |   April_NoMorph_Scatter+Hist.png
+|   |   |   December_Full_City.png
+|   |   |   December_Full_Collapse.png
+|   |   |   December_Full_Corr.png
+|   |   |   December_Full_Scatter+Hist.png
+|   |   |   December_NoAtmos_City.png
+|   |   |   December_NoAtmos_Collapse.png
+|   |   |   December_NoAtmos_Corr.png
+|   |   |   December_NoAtmos_Scatter+Hist.png
+|   |   |   December_NoGraph_City.png
+|   |   |   December_NoGraph_Collapse.png
+|   |   |   December_NoGraph_Corr.png
+|   |   |   December_NoGraph_Scatter+Hist.png
+|   |   |   December_NoMorph_City.png
+|   |   |   December_NoMorph_Collapse.png
+|   |   |   December_NoMorph_Corr.png
+|   |   |   December_NoMorph_Scatter+Hist.png
+|   |   |   
+|   |   +---April_Models
+|   |   |       April_Full.pt
+|   |   |       April_NoAtmos.pt
+|   |   |       April_NoGraph.pt
+|   |   |       April_NoMorph.pt
+|   |   |       
+|   |   \---December_Models
+|   |           December_Full.pt
+|   |           December_NoAtmos.pt
+|   |           December_NoGraph.pt
+|   |           December_NoMorph.pt
+|   |           
+|   +---Delhi
+|   |   |   April_Full_City.png
+|   |   |   April_Full_Collapse.png
+|   |   |   April_Full_Corr.png
+|   |   |   April_Full_Scatter+Hist.png
+|   |   |   April_NoAtmos_City.png
+|   |   |   April_NoAtmos_Collapse.png
+|   |   |   April_NoAtmos_Corr.png
+|   |   |   April_NoAtmos_Scatter+Hist.png
+|   |   |   April_NoGraph_City.png
+|   |   |   April_NoGraph_Collapse.png
+|   |   |   April_NoGraph_Corr.png
+|   |   |   April_NoGraph_Scatter+Hist.png
+|   |   |   April_NoMorph_City.png
+|   |   |   April_NoMorph_Collapse.png
+|   |   |   April_NoMorph_Corr.png
+|   |   |   April_NoMorph_Scatter+Hist.png
+|   |   |   December_Full_City.png
+|   |   |   December_Full_Collapse.png
+|   |   |   December_Full_Corr.png
+|   |   |   December_Full_Scatter+Hist.png
+|   |   |   December_NoAtmos_City.png
+|   |   |   December_NoAtmos_Collapse.png
+|   |   |   December_NoAtmos_Corr.png
+|   |   |   December_NoAtmos_Scatter+Hist.png
+|   |   |   December_NoGraph_City.png
+|   |   |   December_NoGraph_Collapse.png
+|   |   |   December_NoGraph_Corr.png
+|   |   |   December_NoGraph_Scatter+Hist.png
+|   |   |   December_NoMorph_City.png
+|   |   |   December_NoMorph_Collapse.png
+|   |   |   December_NoMorph_Corr.png
+|   |   |   December_NoMorph_Scatter+Hist.png
+|   |   |   
+|   |   +---April_Models
+|   |   |       April_Full.pt
+|   |   |       April_NoAtmos.pt
+|   |   |       April_NoGraph.pt
+|   |   |       April_NoMorph.pt
+|   |   |       
+|   |   \---December_Models
+|   |           December_Full.pt
+|   |           December_NoAtmos.pt
+|   |           December_NoGraph.pt
+|   |           December_NoMorph.pt
+|   |           
+|   +---Hyderabad
+|   |   |   April_Full_City.png
+|   |   |   April_Full_Collapse.png
+|   |   |   April_Full_Corr.png
+|   |   |   April_Full_Scatter+Hist.png
+|   |   |   April_NoAtmos_City.png
+|   |   |   April_NoAtmos_Collapse.png
+|   |   |   April_NoAtmos_Corr.png
+|   |   |   April_NoAtmos_Scatter+Hist.png
+|   |   |   April_NoGraph_City.png
+|   |   |   April_NoGraph_Collapse.png
+|   |   |   April_NoGraph_Corr.png
+|   |   |   April_NoGraph_Scatter+Hist.png
+|   |   |   April_NoMorph_City.png
+|   |   |   April_NoMorph_Collapse.png
+|   |   |   April_NoMorph_Corr.png
+|   |   |   April_NoMorph_Scatter+Hist.png
+|   |   |   December_Full_City.png
+|   |   |   December_Full_Collapse.png
+|   |   |   December_Full_Corr.png
+|   |   |   December_Full_Scatter+Hist.png
+|   |   |   December_NoAtmos_City.png
+|   |   |   December_NoAtmos_Collapse.png
+|   |   |   December_NoAtmos_Corr.png
+|   |   |   December_NoAtmos_Scatter+Hist.png
+|   |   |   December_NoGraph_City.png
+|   |   |   December_NoGraph_Collapse.png
+|   |   |   December_NoGraph_Corr.png
+|   |   |   December_NoGraph_Scatter+Hist.png
+|   |   |   December_NoMorph_City.png
+|   |   |   December_NoMorph_Collapse.png
+|   |   |   December_NoMorph_Corr.png
+|   |   |   December_NoMorph_Scatter+Hist.png
+|   |   |   
+|   |   +---April_Models
+|   |   |       April_Full.pt
+|   |   |       April_NoAtmos.pt
+|   |   |       April_NoGraph.pt
+|   |   |       April_NoMorph.pt
+|   |   |       
+|   |   \---December_Models
+|   |           December_Full.pt
+|   |           December_NoAtmos.pt
+|   |           December_NoGraph.pt
+|   |           December_NoMorph.pt
+|   |           
+|   \---ignore
+|       |   bootstrap_gaps.csv
+|       |   fig1_ablation.pdf
+|       |   fig2_variance_deficit.pdf
+|       |   k_focused.csv
+|       |   mlp_lag_test.csv
+|       |   modis_night_results_FINAL.csv
+|       |   neural_decomposition.csv
+|       |   oracle_and_decomposition.csv
+|       |   plots.py
+|       |   tree_baselines.csv
+|       |   
+|       +---Old_Bangalore
+|       |   |   Adjaceny_Check.png
+|       |   |   April_Baseline_Model_City.png
+|       |   |   April_Baseline_Model_Corr.png
+|       |   |   April_Baseline_Model_Cosine.png
+|       |   |   April_Baseline_Model_Scatter+Hist.png
+|       |   |   April_NoPruning_City.png
+|       |   |   April_NoPruning_Corr.png
+|       |   |   April_NoPruning_Cosine.png
+|       |   |   April_NoPruning_Scatter+Hist.png
+|       |   |   April_PhyRes_City.png
+|       |   |   April_PhyRes_Corr.png
+|       |   |   April_PhyRes_Cosine.png
+|       |   |   April_PhyRes_Scatter+Hist.png
+|       |   |   April_Results.txt
+|       |   |   December_Baseline_City.png
+|       |   |   December_Baseline_Cosine.png
+|       |   |   December_Baseline_Model_Corr.png
+|       |   |   December_Baseline_Model_Scatter+Hist.png
+|       |   |   December_NoPruning_City.png
+|       |   |   December_NoPruning_Corr.png
+|       |   |   December_NoPruning_Cosine.png
+|       |   |   December_NoPruning_Scatter+Hist.png
+|       |   |   December_PhyRes_City.png
+|       |   |   December_PhyRes_Cosine.png
+|       |   |   December_PhyRes_Scatter+Hist.png
+|       |   |   December_Results.txt
+|       |   |   Decemeber_PhyRes_Corr.png
+|       |   |   
+|       |   \---April_Models
+|       |           phyres-model.pt
+|       |           vanilla_baseline_model.pt
+|       |           zero_guidance_np_model.pt
+|       |           
+|       +---Old_Hyderabad
+|       |   |   Adjacency_Check.png
+|       |   |   April_Baseline_City.png
+|       |   |   April_Baseline_Collapse.png
+|       |   |   April_Baseline_Corr.png
+|       |   |   April_Baseline_Scatter+Hist.png
+|       |   |   April_NoPruning_City.png
+|       |   |   April_NoPruning_Collapse.png
+|       |   |   April_NoPruning_Corr.png
+|       |   |   April_NoPruning_Scatter+Hist.png
+|       |   |   April_PhyRes_City.png
+|       |   |   April_PhyRes_Collapse.png
+|       |   |   April_PhyRes_Corr.png
+|       |   |   April_PhyRes_Scatter+Hist.png
+|       |   |   April_Results.txt
+|       |   |   December_Baseline_City.png
+|       |   |   December_Baseline_Collapse.png
+|       |   |   December_Baseline_Corr.png
+|       |   |   December_Baseline_Scatter+Hist.png
+|       |   |   December_NoPruning_City.png
+|       |   |   December_NoPruning_Collapse.png
+|       |   |   December_NoPruning_Corr.png
+|       |   |   December_NoPruning_Scatter+Hist.png
+|       |   |   December_PhyRes_City.png
+|       |   |   December_PhyRes_Collapse.png
+|       |   |   December_PhyRes_Corr.png
+|       |   |   December_PhyRes_Scatter+Hist.png
+|       |   |   December_Results.txt
+|       |   |   
+|       |   \---April Models
+|       |           phyres-model.pt
+|       |           vanilla_baseline_model.pt
+|       |           zero_guidance_np_model.pt
+|       |           
+|       \---paper
+|               AI_content_report.pdf
+|               Old_PhyRes.pdf
+|               plagiarism_report.pdf
+|               
+\---src
+    |   files.zip
+    |   
+    +---files
+    |   |   grsl_repo.zip
+    |   |   README.md
+    |   |   
+    |   \---grsl_repo
+    |       |   .gitignore
+    |       |   README.md
+    |       |   
+    |       \---archive
+    |               03_superseded_design.ipynb
+    |               csv.js
+    |               main.ipynb
+    |               nodes.js
+    |               nodes_fixed.js
+    |               
+    +---gee
+    |       modis_extraction.js
+    |       nodes_1km.js
+    |       
+    \---notebooks
+            01_main.ipynb
+            02_supplementary.ipynb
+            03_superseded_design.ipynb
+            04_final_run.ipynb
+            

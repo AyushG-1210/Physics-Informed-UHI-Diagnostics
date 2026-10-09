@@ -1,43 +1,36 @@
 /**
- * PHASE 2 — MODIS LST EXTRACTION  (v2, overpass-time corrected)
+ * PHASE 2 — MODIS LST EXTRACTION  (v3, 60-day windows)
  *
- * THE BUG IN v1
- * MOD11A1/MYD11A1 are DAILY COMPOSITES. Their system:time_start is
- * midnight of the compositing day, not the moment of overpass. v1
- * matched ERA5 to that value, so EVERY observation -- day and night,
- * Terra and Aqua -- received the midnight ERA5 hour. The physics head
- * would have seen identical atmospheric forcing for a 13:30 daytime
- * retrieval and a 01:30 nighttime one. The evidence was visible in
- * the v1 output: 14 timestamps per pass, all at 00:00:00, identical
- * across day and night.
+ * WHY THE WINDOW GREW
+ * A 14-day window yielded only 13-26 usable night passes per config.
+ * After requiring nodes to be observed on at least 60% of passes,
+ * Bengaluru April fell from 973 nodes to 211 with 34% of its target
+ * matrix interpolated, and training ran on 9 overlapping windows over
+ * 111 nodes. Any k-sweep on that is confounded: with 211 nodes, k=16
+ * is close to a global average, so "more neighbours" and "more data"
+ * cannot be told apart.
  *
- * THE FIX
- * MODIS carries the real overpass time per pixel in Day_view_time and
- * Night_view_time: LOCAL SOLAR hours, scale factor 0.1. These are
- * converted to UTC using the window's central longitude
- * (UTC = local_solar - lon/15) and rounded to the nearest hour, which
- * is ERA5's resolution. Each observation then gets the atmospheric
- * state that actually accompanied it, and the diurnal cycle the
- * physics head needs is present.
+ * 60 days gives roughly 4x the passes -- Terra and Aqua each provide
+ * one night overpass per day, so ~120 before cloud, and 40-90 after.
+ * Nodes then clear a coverage threshold on REAL observations instead
+ * of the threshold being lowered to admit interpolated ones.
  *
- * The view time is a per-pixel band. Its mean over the region is used
- * for the ERA5 match -- overpass time varies by only a few minutes
- * across a 30 km window, well inside ERA5's hourly resolution -- while
- * the per-node value is exported as `view_time` so the assumption is
- * checkable rather than assumed.
+ * WHAT DOES NOT CHANGE
+ * The Landsat validation scene stays anchored to the original target
+ * dates. It is a single held-out snapshot; widening its search would
+ * only move it further from the study period.
  *
- * ALSO NEW
- *  - `qc_strict` alongside `qc_ok`. v1 kept mandatory QA <= 1, but
- *    only 0.6-15.6% of retrievals were flagged GOOD; the rest are
- *    "other quality", which for MODIS LST often means error above
- *    2 K. Both flags are exported so the strict subset can be tested
- *    without re-extracting.
- *  - `hour_utc` and `local_hour`, so the diurnal structure can be
- *    inspected directly.
+ * NO2 NOW MATCHES THE TARGET WINDOW. In v2 a one-month NO2 mean was
+ * attached to a 14-day window; leaving that unchanged would have
+ * spread a one-month mean across two months of observations.
  *
- * UNCHANGED: 1 km nodes matched to MODIS native resolution, Landsat
- * held out for validation only, reflectance scaling before normalised
- * differences, blocking asset check, explicit selectors.
+ * LIMITATION TO STATE IN THE PAPER
+ * NDVI, NDBI and the Landsat scene remain SINGLE SNAPSHOTS while the
+ * target now spans 60 days. Vegetation drifts over that period,
+ * particularly across the pre-monsoon transition, so the morphological
+ * predictors are a fixed description of a surface that is changing.
+ * That is a real limitation. It is smaller than training on 9 windows,
+ * but it belongs in the text rather than being left for a reviewer.
  */
 
 // ---- CONFIG ------------------------------------------------------
@@ -92,27 +85,20 @@ Object.keys(CITIES).forEach(function (k) {
 if (!assetsOk) { print('!! ABORTED — fix asset ids. No tasks created.'); }
 
 // ---- MODIS -------------------------------------------------------
-/**
- * One image per (satellite, pass). The view-time band gives the real
- * overpass hour in LOCAL SOLAR time; converting to UTC needs the
- * longitude, since local solar time is defined by the sun's position.
- */
 function modisPass(col, lstBand, qcBand, vtBand, passName, region, lon) {
   return col.map(function (img) {
     var qc = img.select(qcBand);
-    var mandatory = qc.bitwiseAnd(3);           // bits 0-1
-    var usable = mandatory.lte(1);              // good OR other quality
-    var strict = mandatory.eq(0);               // good only
+    var mandatory = qc.bitwiseAnd(3);            // bits 0-1
+    var usable = mandatory.lte(1);               // good OR other quality
+    var strict = mandatory.eq(0);                // good only
 
     var lst = img.select(lstBand).multiply(0.02).subtract(273.15)
       .updateMask(usable).rename('lst_modis');
+    var vt = img.select(vtBand).multiply(0.1).rename('view_time'); // local solar h
 
-    var vt = img.select(vtBand).multiply(0.1).rename('view_time');  // local solar h
-
-    // Region-mean overpass hour -> UTC. Across a ~30 km window the
-    // overpass time varies by only minutes, far inside ERA5's hourly
-    // step, so a single scalar per image is adequate. The per-node
-    // value is still exported so this can be verified.
+    // MOD11A1/MYD11A1 are DAILY COMPOSITES: system:time_start is
+    // midnight, not the overpass. Matching ERA5 to it would give every
+    // pass the same midnight forcing, so the real view time is used.
     var meanLocal = ee.Number(vt.reduceRegion({
       reducer: ee.Reducer.mean(), geometry: region,
       scale: 1000, maxPixels: 1e9, bestEffort: true
@@ -123,8 +109,7 @@ function modisPass(col, lstBand, qcBand, vtBand, passName, region, lon) {
       ee.Number(meanLocal).subtract(ee.Number(lon).divide(15)).mod(24),
       null);
 
-    return lst
-      .addBands(vt)
+    return lst.addBands(vt)
       .addBands(strict.rename('qc_strict').toByte())
       .addBands(usable.rename('qc_ok').toByte())
       .set('pass', passName)
@@ -183,6 +168,8 @@ function landsatLayer(region, start, end, target, tag) {
   var scene = maskL2(ee.Image(usable.first()));
   print('  ' + tag + ' Landsat (validation only):',
         scene.get('DATE_ACQUIRED'), 'clear:', scene.get('clear_frac'));
+  // rho = 0.0000275*DN - 0.2 BEFORE the normalised differences: the
+  // offset cancels in the numerator but not the denominator.
   var sr = scene.select(['SR_B4', 'SR_B5', 'SR_B6'])
     .multiply(0.0000275).add(-0.2);
   return ee.Image.cat([
@@ -200,11 +187,8 @@ function extract(cfg, win, no2win, l8win, l8target, exportName) {
 
   print('--- ' + exportName + ' ---');
   var modis = modisCollection(region, win[0], win[1], cfg.lon);
-  print('  MODIS observations:', modis.size());
-  print('  overpass hours (LOCAL SOLAR) by pass — expect roughly',
-        'terra_day 10.5, aqua_day 13.5, terra_night 22.5, aqua_night 1.5:');
-  print('   ', modis.aggregate_array('pass'));
-  print('   ', modis.aggregate_array('local_hour'));
+  print('  MODIS observations (expect ~200-240 over 60 days,',
+        'roughly half of them night):', modis.size());
 
   var statics = landsatLayer(region, l8win[0], l8win[1], l8target, exportName);
   if (statics === null) { return; }
@@ -213,7 +197,6 @@ function extract(cfg, win, no2win, l8win, l8target, exportName) {
     .filterBounds(region).filterDate(no2win[0], no2win[1])
     .select('NO2_column_number_density').mean().rename('traffic_no2_proxy');
 
-  // ERA5 is a PREDICTOR of the regional baseline here, not the target.
   var era5 = ee.ImageCollection('ECMWF/ERA5_LAND/HOURLY')
     .filterBounds(region)
     .filterDate(ee.Date(win[0]).advance(-1, 'day'),
@@ -227,10 +210,8 @@ function extract(cfg, win, no2win, l8win, l8target, exportName) {
             ['t2m', 'u10', 'v10', 'ssr', 'str', 'slhf', 'lai_hi', 'lai_lo']);
 
   var table = modis.map(function (img) {
-    // Composite date at midnight, plus the REAL overpass hour.
     var day = ee.Date(img.get('system:time_start'));
     var obsTime = day.advance(ee.Number(img.get('hour_utc')), 'hour');
-
     var atm = ee.Image(
       era5.map(function (e) {
         return e.set('dt', ee.Number(e.get('system:time_start'))
@@ -241,10 +222,10 @@ function extract(cfg, win, no2win, l8win, l8target, exportName) {
       .reduceRegions({
         collection: nodes,
         reducer: ee.Reducer.mean(),
-        scale: 1000                   // MODIS native; do NOT oversample
+        scale: 1000                 // MODIS native; do NOT oversample
       })
       .map(function (f) {
-        return f.set('timestamp', obsTime.millis())   // real overpass time
+        return f.set('timestamp', obsTime.millis())
                 .set('pass', img.get('pass'))
                 .set('hour_utc', img.get('hour_utc'))
                 .set('local_hour', img.get('local_hour'));
@@ -260,24 +241,26 @@ function extract(cfg, win, no2win, l8win, l8target, exportName) {
 }
 
 // ---- RUNS --------------------------------------------------------
+// 60-day target windows. NO2 spans the same period. Landsat target
+// dates are unchanged, so the held-out validation scene stays put.
 var runs = [
-  { city: 'Blr', tag: 'Blr_April_MODIS_v2',
-    win: ['2025-04-01', '2025-04-15'], no2: ['2025-03-01', '2025-04-15'],
+  { city: 'Blr', tag: 'Blr_April_MODIS_60d',
+    win: ['2025-03-01', '2025-04-30'], no2: ['2025-03-01', '2025-04-30'],
     l8: ['2025-03-08', '2025-05-08'], l8target: '2025-04-08' },
-  { city: 'Blr', tag: 'Blr_December_MODIS_v2',
-    win: ['2025-12-02', '2025-12-16'], no2: ['2025-11-01', '2025-12-16'],
+  { city: 'Blr', tag: 'Blr_December_MODIS_60d',
+    win: ['2025-11-15', '2026-01-15'], no2: ['2025-11-15', '2026-01-15'],
     l8: ['2025-11-09', '2026-01-08'], l8target: '2025-12-09' },
-  { city: 'Hyd', tag: 'Hyd_April_MODIS_v2',
-    win: ['2025-04-01', '2025-04-15'], no2: ['2025-03-01', '2025-04-15'],
+  { city: 'Hyd', tag: 'Hyd_April_MODIS_60d',
+    win: ['2025-03-01', '2025-04-30'], no2: ['2025-03-01', '2025-04-30'],
     l8: ['2025-03-08', '2025-05-08'], l8target: '2025-04-08' },
-  { city: 'Hyd', tag: 'Hyd_December_MODIS_v2',
-    win: ['2025-12-02', '2025-12-16'], no2: ['2025-11-01', '2025-12-16'],
+  { city: 'Hyd', tag: 'Hyd_December_MODIS_60d',
+    win: ['2025-11-15', '2026-01-15'], no2: ['2025-11-15', '2026-01-15'],
     l8: ['2025-11-09', '2026-01-08'], l8target: '2025-12-09' },
-  { city: 'Dlh', tag: 'Dlh_April_MODIS_v2',
-    win: ['2025-04-01', '2025-04-15'], no2: ['2025-03-01', '2025-04-15'],
+  { city: 'Dlh', tag: 'Dlh_April_MODIS_60d',
+    win: ['2025-03-01', '2025-04-30'], no2: ['2025-03-01', '2025-04-30'],
     l8: ['2025-03-08', '2025-05-08'], l8target: '2025-04-08' },
-  { city: 'Dlh', tag: 'Dlh_December_MODIS_v2',
-    win: ['2025-12-02', '2025-12-16'], no2: ['2025-11-01', '2025-12-16'],
+  { city: 'Dlh', tag: 'Dlh_December_MODIS_60d',
+    win: ['2025-11-15', '2026-01-15'], no2: ['2025-11-15', '2026-01-15'],
     l8: ['2025-11-09', '2026-01-08'], l8target: '2025-12-09' }
 ];
 
@@ -286,14 +269,15 @@ if (assetsOk) {
     extract(CITIES[r.city], r.win, r.no2, r.l8, r.l8target, r.tag);
   });
   print('');
-  print('BEFORE RUNNING TASKS — check the printed local_hour arrays.');
-  print('Expected, roughly: terra_day ~10.5, aqua_day ~13.5,');
-  print('terra_night ~22.5, aqua_night ~1.5 (local solar hours).');
-  print('If they all read the same value, the view-time band is not');
-  print('being picked up and the fix has not taken.');
+  print('Six tasks, ~4x the rows of the 14-day version. Expect a');
+  print('noticeably longer export -- the row count scales with passes.');
   print('');
-  print('AFTER EXTRACTION, verify the fix worked: t2m should now VARY');
-  print('by pass. Group by pass and check its mean -- daytime passes');
-  print('must be warmer than nighttime ones. In v1 they were identical,');
-  print('because every observation received the midnight ERA5 hour.');
+  print('AFTER EXTRACTION, the number to check is night passes per');
+  print('config: 40-90 rather than 13-26. If a config still comes back');
+  print('under ~30, its sky is the limit, not the window, and that');
+  print('config should be reported with its coverage stated.');
+  print('');
+  print('The season labels now cover Mar-Apr and mid-Nov to mid-Jan.');
+  print('Describe them that way in the paper rather than as "April"');
+  print('and "December".');
 }

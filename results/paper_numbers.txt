@@ -1,0 +1,44 @@
+
+######## SPATIAL split, fold 0 ########
+Tree level RMSE 0.16–0.48 °C; graph level RMSE 0.76–1.54 °C
+Graph level > its own anomaly in 6/6; tree level < its anomaly in 6/6
+Anomaly gap 0.103–0.218 °C; R2_sp gap 0.166–0.406; level/anomaly gap ratio 2.9–8.2
+Tree better spatially in 6/6; 95% night-bootstrap excludes 0 in 6/6 (anomaly), 6/6 (R2_sp)
+Oracle RMSE 0.84–1.16 °C; graph RMSE > oracle in 6/6; tree R2_sp 0.31–0.71
+Scored passes 65–103; nights 46–58
+Largest RMSE gap: Dlh-Pre (1.09); largest anomaly gap: Hyd-Pre (0.218)
+Config pairs where RMSE-gap order != anomaly-gap order: 8 of 15
+Across 4 folds: anomaly gap > 0 in 19/19 config-folds; range 0.017–0.250 °C
+Ablation RF_lag: r_sp 0.760 -> 0.509 (drops 6/6); R2_sp drops 6/6; |dRMSE| max 0.357; RMSE prefers ablated 0/6; rank reversals 0/6
+Ablation GAT: r_sp 0.630 -> 0.442 (drops 6/6); R2_sp drops 5/6; |dRMSE| max 0.266; RMSE prefers ablated 2/6; rank reversals 2/6
+Spread S 0.63–0.90 ; S/r 0.92–1.43 (all models)
+GAT level bias 0.21–0.44 °C, systematic share 2–7%, level-error sd 1.35–1.94 °C, corr(level err, t2m) -0.16–0.17
+  GAT_noPairNorm: level RMSE 0.35–1.10 (GAT 0.76–1.54), anomaly 0.67–0.92
+  GAT_noPrior: level RMSE 0.67–1.53 (GAT 0.76–1.54), anomaly 0.70–0.83
+
+######## SPATIOTEMPORAL split, fold 0 ########
+Tree level RMSE 1.06–2.53 °C; graph level RMSE 1.28–2.68 °C
+Graph level > its own anomaly in 6/6; tree level < its anomaly in 0/6
+Anomaly gap -0.043–0.111 °C; R2_sp gap -0.073–0.165; level/anomaly gap ratio -3.4–3.8
+Tree better spatially in 5/6; 95% night-bootstrap excludes 0 in 4/6 (anomaly), 4/6 (R2_sp)
+Oracle RMSE 0.70–1.19 °C; graph RMSE > oracle in 6/6; tree R2_sp 0.06–0.68
+Scored passes 10–30; nights 10–16
+Largest RMSE gap: Hyd-Post (0.38); largest anomaly gap: Dlh-Pre (0.111)
+Config pairs where RMSE-gap order != anomaly-gap order: 2 of 15
+Across 4 folds: anomaly gap > 0 in 15/18 config-folds; range -0.061–0.111 °C
+Ablation RF_lag: r_sp 0.623 -> 0.113 (drops 6/6); R2_sp drops 6/6; |dRMSE| max 0.299; RMSE prefers ablated 0/6; rank reversals 0/6
+Ablation GAT: r_sp 0.611 -> 0.365 (drops 6/6); R2_sp drops 5/6; |dRMSE| max 0.167; RMSE prefers ablated 0/6; rank reversals 0/6
+Spread S 0.21–1.13 ; S/r 0.47–1.52 (all models)
+GAT level bias -0.54–1.35 °C, systematic share 1–52%, level-error sd 0.93–2.93 °C, corr(level err, t2m) -0.81–0.19
+  GAT_noPairNorm: level RMSE 0.70–3.16 (GAT 1.28–2.68), anomaly 0.58–1.08
+  GAT_noPrior: level RMSE 1.23–2.83 (GAT 1.28–2.68), anomaly 0.62–1.02
+
+######## DATA ########
+Passes 78–108; nights 53–61; kept nodes 326–830 of 770–973; interpolated 12–30%
+Level sd (signal) 2.24–4.05 °C vs pooled spatial sd 0.88–1.24 °C (all nodes)
+corr(bld_cover, night LST) per pass: 0.35–0.52
+corr(NDBI, night LST) per pass: 0.09–0.39
+corr(NDVI, night LST) per pass: -0.50–-0.32
+Persistence (same sensor, previous night): 1.27–2.71 °C
+Moran's I of tree residual: 0.40–0.70
+NO2 distinct values per node (median): 1–1
